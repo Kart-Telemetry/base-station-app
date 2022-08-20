@@ -17,7 +17,6 @@
 </mat-toolbar>
 
 <div class="content" *ngIf="(kartData$ | async) as kartData; else elseBlock">
-
   <mat-card>
     <mat-card-title>Location</mat-card-title>
     <mat-card-subtitle>
@@ -31,6 +30,37 @@
       <div class="map-container" leaflet *ngIf="mapOptions$ | async as mapOptions" [leafletOptions]="mapOptions"
         (leafletMapReady)="onMapReady($event)" (leafletClick)="mapClicked($event)">
       </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card>
+    <mat-card-title>Messages</mat-card-title>
+    <mat-card-content>
+      <div class="messageListContainer">
+        <mat-list class="messageList" *ngIf="messages.size">
+          <mat-list-item *ngFor="let message of sortedMessages(); last as last">
+            <mat-icon mat-list-icon>{{message.ack ? 'done' : 'pending'}}</mat-icon>
+            <h4 mat-line>{{message.message}}</h4>
+            <div mat-line>{{message.timestamp | date: 'HH:mm:ss'}}</div>
+            <mat-divider [inset]="true" *ngIf="!last"></mat-divider>
+          </mat-list-item>
+        </mat-list>
+        <div *ngIf="messages.size === 0">
+          <span>No Message History</span>
+        </div>
+      </div>
+
+      <div class="messageInputContainer">
+        <mat-form-field appearance="fill" class="messageInput">
+          <mat-label>Message</mat-label>
+          <input matInput placeholder="Short Message" [(ngModel)]="newMessage" (keyup.enter)="sendMessage()">
+        </mat-form-field>
+
+        <button mat-fab color="primary" aria-label="Send message" class="messageButton" (click)="sendMessage()">
+          <mat-icon>send</mat-icon>
+        </button>
+      </div>
+
     </mat-card-content>
   </mat-card>
 </div>

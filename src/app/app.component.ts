@@ -1,7 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { bufferCount, catchError, combineLatest, interval, map, Observable, of, retry, shareReplay, Subject, switchMap, take, takeUntil, timeout, timer, withLatestFrom } from 'rxjs';
-import { KartMessage, SerialService } from './serial.service';
+import { BehaviorSubject, bufferCount, catchError, combineLatest, interval, map, Observable, of, retry, shareReplay, Subject, switchMap, take, takeUntil, timeout, timer, withLatestFrom } from 'rxjs';
+import { KartMessage, KartData, SerialService } from './serial.service';
 import * as Leaflet from 'leaflet';
+import { UUID } from 'angular2-uuid';
 
 Leaflet.Icon.Default.imagePath = 'assets/';
 
@@ -27,10 +28,13 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   public selectedPort$: Observable<SerialPort | null>;
-  public kartData$: Observable<KartMessage>;
+  public kartData$: Observable<KartData>;
   public latestTimestamp$: Observable<Date>;
   public secondsSinceLastMessage$: Observable<number>;
   public connected$: Observable<boolean>;
+  public newMessage = "";
+  public messages = new Map<UUID, KartMessage>();
+
   private destroy$ = new Subject();
 
   constructor(private serialService: SerialService) {
@@ -97,6 +101,17 @@ export class AppComponent implements OnInit, OnDestroy {
 
   markerDragEnd($event: any, index: number) {
     console.log($event.target.getLatLng());
+  }
+
+  sendMessage(): void {
+    const message: KartMessage = {ack: false, message: this.newMessage, uuid: UUID.UUID(), timestamp: new Date()};
+    this.serialService.writeMessage(message);
+    this.messages.set(message.uuid, message);
+    this.newMessage = "";
+  }
+
+  sortedMessages(): KartMessage[] {
+    return Array.from(this.messages.values()).sort((m1,m2)=> m2.timestamp.getTime() - m1.timestamp.getTime());
   }
 }
 

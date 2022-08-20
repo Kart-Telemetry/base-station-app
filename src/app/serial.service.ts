@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, filter, from, map, Observable, retry, shareReplay, Subject, switchMap, tap } from 'rxjs';
 
-export interface KartMessage {
+export interface KartData {
   recipient: string;
   rssi: number;
   sender: string;
@@ -18,6 +18,15 @@ export interface KartMessage {
     timestamp: Date;
   }
 }
+
+export interface KartMessage {
+  message: string;
+  reciever?: string;
+  ack: boolean;
+  uuid: string;
+  timestamp: Date;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -38,7 +47,7 @@ export class SerialService {
   }
 
   public selectedPort$ = this.port.asObservable();
-  public serialPort$: Observable<KartMessage> = this.port.pipe(
+  public serialPort$: Observable<KartData> = this.port.pipe(
     filter(x => !!x),
     switchMap(port => fromWebSerial(port, 115200, this.writer.asObservable())),
     map(data => {
@@ -52,7 +61,7 @@ export class SerialService {
     map(jsonData => {
       const kartData = jsonData;
       kartData.data.timestamp = new Date(jsonData.data.timestamp);
-      return kartData as KartMessage;
+      return kartData as KartData;
     }),
     shareReplay()
   );
@@ -69,8 +78,8 @@ export class SerialService {
     }
   }
 
-  public writeMessage(message: string): void {
-    this.writer.next(message);
+  public writeMessage(message: KartMessage): void {
+    this.writer.next(JSON.stringify(message));
   }
 }
 

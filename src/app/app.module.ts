@@ -8,11 +8,15 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MatToolbarModule} from '@angular/material/toolbar'
 import {MatIconModule} from '@angular/material/icon'
 import {MatCardModule} from '@angular/material/card'
+import {MatInputModule} from '@angular/material/input'
 import {MatButtonModule} from '@angular/material/button'
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner'
 import {MatBadgeModule} from '@angular/material/badge'
 import { NgChartsModule } from 'ng2-charts';
+import {MatListModule} from '@angular/material/list';
+import {MatDividerModule} from '@angular/material/divider';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -29,7 +33,11 @@ import { LeafletModule } from '@asymmetrik/ngx-leaflet';
     MatCardModule,
     MatProgressSpinnerModule,
     MatBadgeModule,
-    LeafletModule
+    LeafletModule,
+    MatInputModule,
+    MatListModule,
+    MatDividerModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
