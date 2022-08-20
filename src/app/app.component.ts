@@ -59,7 +59,7 @@ export class AppComponent implements OnInit, OnDestroy {
         this.map.panTo(location);
       }
 
-      return {...this.defaultMapOptions, center: location};
+      return { ...this.defaultMapOptions, center: location };
     }));
   }
 
@@ -69,7 +69,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   initMarkers() {
     this.kartData$.pipe(takeUntil(this.destroy$), take(1)).subscribe(kartData => {
-      const locationMarker = { position: {lat: kartData.data.lat, lng: kartData.data.lng}, draggable: false };
+      const locationMarker = { position: { lat: kartData.data.lat, lng: kartData.data.lng }, draggable: false };
 
       const marker = this.generateMarker(locationMarker, 0);
       marker.addTo(this.map).bindPopup(`<b>${locationMarker.position.lat},  ${locationMarker.position.lng}</b>`);
@@ -104,14 +104,18 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   sendMessage(): void {
-    const message: KartMessage = {ack: false, message: this.newMessage, uuid: UUID.UUID(), timestamp: new Date()};
+    if (!this.newMessage) {
+      return;
+    }
+
+    const message: KartMessage = { ack: false, message: this.newMessage, uuid: UUID.UUID(), timestamp: new Date() };
     this.serialService.writeMessage(message);
     this.messages.set(message.uuid, message);
     this.newMessage = "";
   }
 
   sortedMessages(): KartMessage[] {
-    return Array.from(this.messages.values()).sort((m1,m2)=> m2.timestamp.getTime() - m1.timestamp.getTime());
+    return Array.from(this.messages.values()).sort((m1, m2) => m2.timestamp.getTime() - m1.timestamp.getTime());
   }
 }
 

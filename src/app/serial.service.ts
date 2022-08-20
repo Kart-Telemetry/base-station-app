@@ -21,7 +21,6 @@ export interface KartData {
 
 export interface KartMessage {
   message: string;
-  reciever?: string;
   ack: boolean;
   uuid: string;
   timestamp: Date;
@@ -63,6 +62,7 @@ export class SerialService {
       kartData.data.timestamp = new Date(jsonData.data.timestamp);
       return kartData as KartData;
     }),
+    tap(console.log),
     shareReplay()
   );
 
