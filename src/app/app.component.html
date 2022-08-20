@@ -61,6 +61,16 @@
         </button>
       </div>
 
+      <mat-chip-list aria-label="Quick Messages">
+        <mat-chip (click)="quickSelectionMessage('Gelbe Flagge')">Gelbe Flagge</mat-chip>
+        <mat-chip (click)="quickSelectionMessage('Überholen lassen')">Überholen lassen</mat-chip>
+        <mat-chip (click)="quickSelectionMessage('Überholen')">Überholen</mat-chip>
+        <mat-chip (click)="quickSelectionMessage('Box')">Box</mat-chip>
+        <mat-chip (click)="quickSelectionMessage('Panne')">Panne</mat-chip>
+        <mat-chip (click)="quickSelectionMessage('Service')">Service</mat-chip>
+      </mat-chip-list>
+
+
     </mat-card-content>
   </mat-card>
 </div>

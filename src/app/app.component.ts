@@ -39,7 +39,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(private serialService: SerialService) {
     this.selectedPort$ = this.serialService.selectedPort$
-    this.kartData$ = this.serialService.serialPort$;
+    this.kartData$ = this.serialService.kartData$;
     this.latestTimestamp$ = this.kartData$.pipe(map(data => data.data.timestamp));
     this.secondsSinceLastMessage$ = interval(10).pipe(withLatestFrom(this.latestTimestamp$), map(([_, timestamp]) => (timestamp.getTime() - new Date().getTime()) / 1000));
     this.connected$ = this.kartData$.pipe(map(() => true), timeout(10000), catchError(() => of(false)));
@@ -61,6 +61,20 @@ export class AppComponent implements OnInit, OnDestroy {
 
       return { ...this.defaultMapOptions, center: location };
     }));
+
+    this.serialService.commandAcks$.pipe(takeUntil(this.destroy$)).subscribe(ack => {
+      try {
+        const uuid = JSON.parse(ack.data.content.content).uuid;
+        const message = this.messages.get(uuid);
+
+        if(uuid && message) {
+          this.messages.set(uuid, {...message, ack: true} as KartMessage);
+          console.log('Ack message',)
+        }
+      } catch (error) {
+        console.warn('Coud not parse ack', ack);
+      }
+    });
   }
 
   async connect(): Promise<void> {
@@ -112,6 +126,16 @@ export class AppComponent implements OnInit, OnDestroy {
     this.serialService.writeMessage(message);
     this.messages.set(message.uuid, message);
     this.newMessage = "";
+  }
+
+  quickSelectionMessage(content: string): void {
+    if (!content) {
+      return;
+    }
+
+    const message: KartMessage = { ack: false, message: content, uuid: UUID.UUID(), timestamp: new Date() };
+    this.serialService.writeMessage(message);
+    this.messages.set(message.uuid, message);
   }
 
   sortedMessages(): KartMessage[] {

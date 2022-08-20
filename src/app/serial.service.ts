@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, filter, from, map, Observable, retry, shareReplay, Subject, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, catchError, filter, from, map, Observable, of, retry, shareReplay, Subject, switchMap, take, tap, timeout } from 'rxjs';
 
 export interface KartData {
   recipient: string;
@@ -20,6 +20,15 @@ export interface KartData {
 }
 
 export interface KartMessage {
+  message: string;
+  ack: boolean;
+  uuid: string;
+  timestamp: Date;
+  failed?: boolean;
+  retryCounter?: number;
+}
+
+export interface ComandAck {
   message: string;
   ack: boolean;
   uuid: string;
@@ -46,7 +55,7 @@ export class SerialService {
   }
 
   public selectedPort$ = this.port.asObservable();
-  public serialPort$: Observable<KartData> = this.port.pipe(
+  public serialPort$: Observable<any> = this.port.pipe(
     filter(x => !!x),
     switchMap(port => fromWebSerial(port, 115200, this.writer.asObservable())),
     map(data => {
@@ -57,14 +66,24 @@ export class SerialService {
       }
     }),
     filter(x => !!x),
+    shareReplay()
+  );
+
+  public kartData$: Observable<KartData> = this.serialPort$.pipe(
+    filter(x => !x?.data?.type || x?.data?.type !== 'command_ack'),
     map(jsonData => {
       const kartData = jsonData;
       kartData.data.timestamp = new Date(jsonData.data.timestamp);
       return kartData as KartData;
     }),
-    tap(console.log),
     shareReplay()
   );
+
+  public commandAcks$: Observable<any> = this.serialPort$.pipe(
+    filter(x => x?.data?.type === 'command_ack'),
+    shareReplay()
+  );
+
 
   public connect(force = false): void {
     if (force) {
@@ -80,6 +99,29 @@ export class SerialService {
 
   public writeMessage(message: KartMessage): void {
     this.writer.next(JSON.stringify(message));
+
+    this.commandAcks$.pipe(
+      filter(ack => {
+        try {
+          const uuid = JSON.parse(ack.data.content.content).uuid;
+          return message.uuid === uuid;
+        } catch (error) {
+          console.warn('Coud not parse ack', ack);
+          return false;
+        }
+      }),
+      timeout(5000),
+      catchError(() => {
+        console.log('Retry send', message);
+        if (message.retryCounter === undefined) {
+          message.retryCounter = 0;
+        }
+        message.retryCounter++;
+        this.writeMessage(message);
+        return of();
+      }),
+      take(1)
+    ).subscribe();
   }
 }
 
