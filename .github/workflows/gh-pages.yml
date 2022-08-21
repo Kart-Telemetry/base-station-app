@@ -21,10 +21,10 @@ jobs:
       run: npm install
 
     - name: Run tests
-      run: ng test
+      run: npm run test
 
     - name: Build
-      run: ng build --prod
+      run: npm run build:prod
 
     - name: Deploy
       if: success()
