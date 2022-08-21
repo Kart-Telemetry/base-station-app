@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1661079347609,
+  "timestamp": 1661079556948,
   "index": "/base-station-app/index.html",
   "assetGroups": [
     {
@@ -65,7 +65,7 @@
     "/base-station-app/assets/marker-icon.png": "60a90bcbb2b42b7ddb4556db94eb7c1084b0e5da",
     "/base-station-app/assets/marker-shadow.png": "7b6a8df63930381e96604e705168d0527d6b82bc",
     "/base-station-app/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
-    "/base-station-app/index.html": "64681b6e268118e27f8c99f6095e3c221f30d767",
+    "/base-station-app/index.html": "47c08a85d0f0e1127b37577420535c939423588e",
     "/base-station-app/layers-2x.9859cd1231006a4a.png": "152a162333e46d24f9d89f566312fc0c64011dee",
     "/base-station-app/layers.ef6db8722c2c3f9a.png": "c9e7528e491a39232ba24a2706c6c739d6fb0f06",
     "/base-station-app/main.f73df1b1264493be.js": "33861912f2d02940d7f1166b1857353960c48691",
